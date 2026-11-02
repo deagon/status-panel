@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- Looping alert sound while status is Warning or higher (Warning, Average, High, Disaster). The loop stops on OK, Information, Disabled, or N/A. Information still plays once on transition. Volume and per-status Off / Built-in / Custom URL settings are unchanged.
+- On-panel **声音告警** snooze controls: 恢复报警声音, and silence for 1 minute, 30 minutes, 1 hour, 2 hours, or 4 hours. The unmute time is stored in `localStorage` and survives a reload. When it expires, sound resumes only if the panel is still alerting.
+
+---
+
 ## [1.0.0] — 2025-02-24
 
 ### ✨ Added — Complete rewrite for Grafana 10+
@@ -13,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This is a full rewrite of the abandoned `serrrios-statusoverview-panel` plugin with no shared code.
 
 #### Visual
+
 - Status levels: OK, Information, Warning, Average, High, Disaster, Disabled, N/A
 - Blink animation on status change with configurable duration (5–60 seconds)
 - Colorize each metric individually by its own status color
@@ -25,6 +35,7 @@ This is a full rewrite of the abandoned `serrrios-statusoverview-panel` plugin w
 - Separate font size controls for title and metrics
 
 #### Sound
+
 - 5 built-in alert tones via Web Audio API (one per severity level)
 - Custom audio URL (MP3/OGG) per status level
 - Per-status mode: Off / Built-in / Custom URL
@@ -32,6 +43,7 @@ This is a full rewrite of the abandoned `serrrios-statusoverview-panel` plugin w
 - Preview button for each sound in settings
 
 #### Rules
+
 - Regex metric matching with real-time validation and error highlighting
 - Number threshold, String threshold, and Show-only display modes
 - Reverse logic (trigger when value ≤ threshold)
@@ -43,14 +55,17 @@ This is a full rewrite of the abandoned `serrrios-statusoverview-panel` plugin w
 - Description tooltip on hover
 
 #### Reliability
+
 - Switch to N/A on data source error (prevents false-green status)
 - Custom error message when data source fails
 - No flicker during Grafana refresh cycles
 
 #### Developer
+
 - Full TypeScript rewrite with strict typing
 - Separated hooks: `useStatusTransition`, `useAlertSound`
 - Unit tests for `colorResolver`, `comparisonFunctions`, `displayBuilder`, `statusResolver`
 
 #### Migration
+
 - `migrate_panel.py` — Python script for automated migration of existing dashboards from the old plugin format

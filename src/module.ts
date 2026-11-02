@@ -233,7 +233,8 @@ export const plugin = new PanelPlugin<StatusPanelOptions>(StatusPanel).setPanelO
 
       .addBooleanSwitch({
         path: 'soundEnabled',
-        name: 'Enable alert sound on status change',
+        name: 'Enable alert sound',
+        description: 'Warning and higher severities loop until the status drops below Warning or an operator snoozes the alarm from the panel. Information plays once on change.',
         defaultValue: true,
         category: ['Blink & Sound'],
       })

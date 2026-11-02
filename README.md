@@ -56,6 +56,8 @@ A feature-rich Grafana panel plugin for monitoring system status with configurab
 - **Per-status configuration** — each status level can be set to Off / Built-in / Custom URL independently
 - **Volume control** (0–100%)
 - **Sound preview** button in the settings panel
+- **Looping alarm** while the status is Warning or higher (Warning, Average, High, Disaster). The sound stops on OK, Information, Disabled, or N/A
+- **Timed snooze** on the panel (声音告警): 恢复报警声音, or silence for 1 minute, 30 minutes, 1 hour, 2 hours, or 4 hours. The unmute time is kept in the browser across reloads
 
 ### 📋 Rules Engine
 - **Regex metric matching** with real-time validation and error highlighting
@@ -190,9 +192,18 @@ npm run dev
 |---|---|---|
 | Enable blink on status change | Animate panel opacity on status change. | On |
 | Blink duration | How long the blink animation runs in seconds. | `10` |
-| Enable alert sound on status change | Play a sound when status changes. | On |
+| Enable alert sound | Warning and higher severities loop until the status drops below Warning or the alarm is snoozed. Information plays once when the status changes. | On |
 | Volume | Master volume for all sounds (0–100%). | `70%` |
 | Per-status sound | Each level (Information → Disaster) can be `Off`, `Built-in`, or `Custom URL`. | Built-in for all; Disaster uses Custom URL |
+
+When alert sound is enabled, the panel shows a **声音告警** row:
+
+| Button | Effect |
+|---|---|
+| 恢复报警声音 | Clear the snooze and resume immediately if the panel is still Warning or higher |
+| 停止报警声音1分钟 / 30分钟 / 1小时 / 2小时 / 4小时 | Silence the alarm for that long |
+
+The unmute time is stored in `localStorage` under `toropovav-status-panel.alertSoundUnmuteAt` and is shared by every Status Panel in this browser. When it expires, sound resumes only if the panel is still alerting. Browsers block autoplay until the operator clicks or presses a key on the dashboard once; after that gesture, looping audio is allowed for the rest of the session.
 
 ### Colors
 
@@ -325,6 +336,7 @@ npm run build
 src/
 ├── components/
 │   ├── StatusPanel.tsx          # Main panel component
+│   ├── AlertSoundControls.tsx   # 声音告警 snooze button row
 │   ├── MetricRow.tsx            # Single metric row
 │   └── editor/
 │       ├── RuleEditor.tsx       # Rules list with drag & drop
@@ -334,14 +346,16 @@ src/
 │       └── IconReferenceButton.tsx
 ├── hooks/
 │   ├── useStatusTransition.ts   # Blink logic
-│   └── useAlertSound.ts         # Sound playback on transition
+│   ├── useAlertSnooze.ts        # Timed snooze persisted in localStorage
+│   └── useAlertSound.ts         # Loop Warning and above; one-shot Information
 ├── utils/
 │   ├── processor.ts             # DataFrame → MetricHint
 │   ├── statusResolver.ts        # Resolve worst status across rules
 │   ├── displayBuilder.ts        # Build display items list
 │   ├── colorResolver.ts         # Map status → color
 │   ├── comparisonFunctions.ts   # Threshold comparison logic
-│   └── soundPlayer.ts           # Web Audio + HTML Audio playback
+│   ├── soundPlayer.ts           # One-shot preview and looping alarm playback
+│   └── alertSnooze.ts           # Snooze duration, policy, localStorage
 ├── constants.ts                 # Default colors, sounds, durations
 ├── types.ts                     # All TypeScript interfaces
 └── module.ts                    # Plugin registration & settings schema

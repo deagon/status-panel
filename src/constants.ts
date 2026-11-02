@@ -41,6 +41,9 @@ function playTone(
   masterGain.gain.value = volume / 100;
   masterGain.connect(ctx.destination);
 
+  let latestOsc: OscillatorNode | null = null;
+  let latestEnd = -1;
+
   for (const beep of beeps) {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -57,6 +60,24 @@ function playTone(
 
     osc.start(ctx.currentTime + beep.start);
     osc.stop(ctx.currentTime + beep.start + beep.duration + 0.05);
+
+    const endAt = beep.start + beep.duration;
+    if (endAt >= latestEnd) {
+      latestEnd = endAt;
+      latestOsc = osc;
+    }
+  }
+
+  // Release the gain node after the tone. The alarm loop calls this every
+  // couple of seconds, so leaving each node connected would accumulate for hours.
+  if (latestOsc) {
+    latestOsc.onended = () => {
+      try {
+        masterGain.disconnect();
+      } catch {
+        // Already disconnected.
+      }
+    };
   }
 }
 
