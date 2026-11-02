@@ -30,6 +30,12 @@ export interface StatusPanelOptions {
   soundEnabled: boolean;
   soundVolume: number;
   soundConfig: SoundConfig;
+  /**
+   * Render the shared 声音告警 snooze buttons on this panel.
+   * Off by default so metric tiles stay clean. One panel with this on
+   * mutes and resumes sound for every Status Panel in the browser.
+   */
+  showAlertSoundControls: boolean;
 
   // Data source error handling
   switchToNaOnError: boolean;

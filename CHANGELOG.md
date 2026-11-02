@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 
 - Looping alert sound while status is Warning or higher (Warning, Average, High, Disaster). The loop stops on OK, Information, Disabled, or N/A. Information still plays once on transition. Volume and per-status Off / Built-in / Custom URL settings are unchanged.
-- On-panel **声音告警** snooze controls: 恢复报警声音, and silence for 1 minute, 30 minutes, 1 hour, 2 hours, or 4 hours. The unmute time is stored in `localStorage` and survives a reload. When it expires, sound resumes only if the panel is still alerting.
+- Opt-in **Show alert sound controls** (全局声音控制面板), off by default. One panel with it enabled shows 恢复报警声音 and the 1 minute / 30 minute / 1 hour / 2 hour / 4 hour snooze buttons. The unmute time is stored in `localStorage` and mutes or resumes every Status Panel in the browser, including after a reload. Metric panels do not render the button row.
 
 ---
 

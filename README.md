@@ -57,7 +57,7 @@ A feature-rich Grafana panel plugin for monitoring system status with configurab
 - **Volume control** (0–100%)
 - **Sound preview** button in the settings panel
 - **Looping alarm** while the status is Warning or higher (Warning, Average, High, Disaster). The sound stops on OK, Information, Disabled, or N/A
-- **Timed snooze** on the panel (声音告警): 恢复报警声音, or silence for 1 minute, 30 minutes, 1 hour, 2 hours, or 4 hours. The unmute time is kept in the browser across reloads
+- **Timed snooze** from one opt-in panel (声音告警): 恢复报警声音, or silence for 1 minute, 30 minutes, 1 hour, 2 hours, or 4 hours. Metric panels stay clean. The unmute time is kept in the browser and applies to every Status Panel
 
 ### 📋 Rules Engine
 - **Regex metric matching** with real-time validation and error highlighting
@@ -192,18 +192,19 @@ npm run dev
 |---|---|---|
 | Enable blink on status change | Animate panel opacity on status change. | On |
 | Blink duration | How long the blink animation runs in seconds. | `10` |
-| Enable alert sound | Warning and higher severities loop until the status drops below Warning or the alarm is snoozed. Information plays once when the status changes. | On |
+| Enable alert sound | Warning and higher severities loop until the status drops below Warning or the alarm is snoozed. Information plays once when the status changes. Does not draw buttons. | On |
+| Show alert sound controls | 全局声音控制面板. Draw the 声音告警 buttons on this panel. Leave off on metric tiles. | Off |
 | Volume | Master volume for all sounds (0–100%). | `70%` |
 | Per-status sound | Each level (Information → Disaster) can be `Off`, `Built-in`, or `Custom URL`. | Built-in for all; Disaster uses Custom URL |
 
-When alert sound is enabled, the panel shows a **声音告警** row:
+Snooze buttons are not on every tile. Add one Status Panel, open **Blink & Sound**, and turn **Show alert sound controls** on. Place that panel as a short full-width row (the status block shrinks and the buttons stay visible). Leave the option off on the metric panels, and leave **Enable alert sound** on for the tiles that should loop. The control panel does not need to be Warning. Its buttons mute and resume every Status Panel in this browser.
 
 | Button | Effect |
 |---|---|
-| 恢复报警声音 | Clear the snooze and resume immediately if the panel is still Warning or higher |
+| 恢复报警声音 | Clear the snooze and resume immediately on any panel that is still Warning or higher |
 | 停止报警声音1分钟 / 30分钟 / 1小时 / 2小时 / 4小时 | Silence the alarm for that long |
 
-The unmute time is stored in `localStorage` under `toropovav-status-panel.alertSoundUnmuteAt` and is shared by every Status Panel in this browser. When it expires, sound resumes only if the panel is still alerting. Browsers block autoplay until the operator clicks or presses a key on the dashboard once; after that gesture, looping audio is allowed for the rest of the session.
+The unmute time is stored in `localStorage` under `toropovav-status-panel.alertSoundUnmuteAt`. When it expires, sound resumes only on panels that are still alerting. Browsers block autoplay until the operator clicks or presses a key on the dashboard once; after that gesture, looping audio is allowed for the rest of the session.
 
 ### Colors
 

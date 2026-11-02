@@ -139,6 +139,8 @@ export const StatusPanel: React.FC<Props> = ({
     soundSettings?.volume ?? options.soundVolume ?? 70,
     soundSettings?.soundConfig ?? DEFAULT_SOUND_CONFIG
   );
+  // Opt-in. Undefined (dashboards saved before the option) stays hidden.
+  const showAlertSoundControls = options.showAlertSoundControls ?? false;
 
   // ── Colors ──────────────────────────────────────────────────────────────────
 
@@ -346,7 +348,7 @@ export const StatusPanel: React.FC<Props> = ({
       )}
 
     </div>
-    {options.soundEnabled && (
+    {showAlertSoundControls && (
       <AlertSoundControls
         snoozed={alertSound.snoozed}
         unmuteAt={alertSound.unmuteAt}
