@@ -51,8 +51,8 @@ A feature-rich Grafana panel plugin for monitoring system status with configurab
 - **Show/hide** metric name and value independently per rule
 
 ### 🔔 Alert Sound
-- **5 built-in tones** generated via Web Audio API, one per severity level
-- **Custom audio URL** — play any MP3/OGG from a URL
+- **Built-in sounds** — Information, Warning, Average, and High use Web Audio tones. **Disaster** plays the firetruck siren shipped in the plugin (`src/assets/alert-disaster.mp3`), inlined into the bundle. No manual MP3 copy and no remote URL.
+- **Custom audio URL** — optional; play any MP3/OGG from a URL instead of the built-in sound
 - **Per-status configuration** — each status level can be set to Off / Built-in / Custom URL independently
 - **Volume control** (0–100%)
 - **Sound preview** button in the settings panel
@@ -195,7 +195,9 @@ npm run dev
 | Enable alert sound | Warning and higher severities loop until the status drops below Warning or the alarm is snoozed. Information plays once when the status changes. Does not draw buttons. | On |
 | Show alert sound controls | 全局声音控制面板. Draw the 声音告警 buttons on this panel. Leave off on metric tiles. | Off |
 | Volume | Master volume for all sounds (0–100%). | `70%` |
-| Per-status sound | Each level (Information → Disaster) can be `Off`, `Built-in`, or `Custom URL`. | Built-in for all; Disaster uses Custom URL |
+| Per-status sound | Each level can be `Off`, `Built-in`, or `Custom URL`. Disaster **Built-in** is the bundled firetruck MP3 and loops while alerting. Other built-ins are Web Audio tones. Custom URL is optional. | Built-in for all |
+
+Select the Disaster siren in the panel editor: **Edit panel → Blink & Sound → Sound settings → Disaster → Built-in (firetruck)**. That is the default for new panels. Dashboards that still point Disaster at `/public/plugins/toropovav-status-panel/alert-disaster.mp3` also play this bundled file. Leave Custom URL only when you want a different clip.
 
 Snooze buttons are not on every tile. Add one Status Panel, open **Blink & Sound**, and turn **Show alert sound controls** on. Place that panel as a short full-width row (the status block shrinks and the buttons stay visible). Leave the option off on the metric panels, and leave **Enable alert sound** on for the tiles that should loop. The control panel does not need to be Warning. Its buttons mute and resume every Status Panel in this browser.
 

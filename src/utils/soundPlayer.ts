@@ -1,5 +1,15 @@
 import { StatusLevel, StatusSoundConfig } from '../types';
 import { SOUNDS, STATUS_SEVERITY_ORDER } from '../constants';
+import bundledDisasterAlertUrl from '../assets/alert-disaster.mp3';
+
+/**
+ * Mainland firetruck siren, inlined into the plugin bundle as a data URL.
+ * Disaster "Built-in" plays this. It does not need a file under /public/plugins.
+ */
+export const BUNDLED_DISASTER_ALERT_URL = bundledDisasterAlertUrl;
+
+/** How long the settings preview should show "Playing…" for the bundled siren. */
+export const BUNDLED_DISASTER_PREVIEW_MS = 8500;
 
 let audioContext: AudioContext | null = null;
 
@@ -129,6 +139,54 @@ async function playCustomSound(url: string, volume: number): Promise<void> {
 }
 
 /**
+ * The plugin path operators sometimes paste. Grafana often does not serve it,
+ * so playback uses the inlined file instead.
+ */
+function isUnservedPluginDisasterUrl(url: string): boolean {
+  const path = url.trim().split(/[?#]/, 1)[0];
+  return (
+    path === '/public/plugins/toropovav-status-panel/alert-disaster.mp3' ||
+    path === 'public/plugins/toropovav-status-panel/alert-disaster.mp3' ||
+    path.endsWith('/public/plugins/toropovav-status-panel/alert-disaster.mp3')
+  );
+}
+
+export type ResolvedAlertSound = { kind: 'off' } | { kind: 'tone' } | { kind: 'file'; url: string };
+
+/**
+ * Disaster built-in, and the old `/public/plugins/.../alert-disaster.mp3` URL,
+ * resolve to the bundled MP3. Other built-in levels stay Web Audio tones.
+ * A real custom URL is used as entered.
+ */
+export function resolveAlertSound(level: StatusLevel, config?: StatusSoundConfig): ResolvedAlertSound {
+  if (!(STATUS_SEVERITY_ORDER as readonly string[]).includes(level)) {
+    return { kind: 'off' };
+  }
+
+  const mode = config?.mode ?? 'builtin';
+  if (mode === 'off') {
+    return { kind: 'off' };
+  }
+
+  if (mode === 'custom') {
+    const raw = (config?.customUrl ?? '').trim();
+    if (!raw) {
+      return { kind: 'off' };
+    }
+    if (isUnservedPluginDisasterUrl(raw)) {
+      return { kind: 'file', url: BUNDLED_DISASTER_ALERT_URL };
+    }
+    return { kind: 'file', url: raw };
+  }
+
+  if (level === 'disaster') {
+    return { kind: 'file', url: BUNDLED_DISASTER_ALERT_URL };
+  }
+
+  return { kind: 'tone' };
+}
+
+/**
  * Plays the sound for the given status level according to its StatusSoundConfig.
  * One-shot: used for the settings preview and for Information transitions.
  *
@@ -137,23 +195,14 @@ async function playCustomSound(url: string, volume: number): Promise<void> {
  * @param config - Per-status sound configuration. If omitted, plays builtin.
  */
 export async function playStatusSound(level: StatusLevel, volume: number, config?: StatusSoundConfig): Promise<void> {
-  // Only alert statuses produce sounds
-  if (!(STATUS_SEVERITY_ORDER as readonly string[]).includes(level)) {
+  const resolved = resolveAlertSound(level, config);
+  if (resolved.kind === 'off') {
     return;
   }
-
-  const mode = config?.mode ?? 'builtin';
-
-  if (mode === 'off') {
+  if (resolved.kind === 'file') {
+    await playCustomSound(resolved.url, volume);
     return;
   }
-
-  if (mode === 'custom') {
-    await playCustomSound(config?.customUrl ?? '', volume);
-    return;
-  }
-
-  // mode === 'builtin'
   await playBuiltinSound(level, volume);
 }
 
@@ -315,28 +364,27 @@ export function createAlertLoop(): AlertLoopHandle {
 
   const start = (level: StatusLevel, volume: number, config?: StatusSoundConfig) => {
     currentVolume = volume;
-    const mode = config?.mode ?? 'builtin';
-    const url = config?.customUrl ?? '';
+    const resolved = resolveAlertSound(level, config);
 
-    if (mode === 'off' || (mode === 'custom' && !url)) {
-      stop();
-      return;
-    }
-    if (!(STATUS_SEVERITY_ORDER as readonly string[]).includes(level)) {
+    if (resolved.kind === 'off') {
       stop();
       return;
     }
 
-    const key = `${level}|${mode}|${mode === 'custom' ? url : ''}`;
+    const key =
+      resolved.kind === 'file'
+        ? `${level}|file|${resolved.url === BUNDLED_DISASTER_ALERT_URL ? 'bundled-disaster' : resolved.url}`
+        : `${level}|tone`;
+
     if (active && runningKey === key) {
-      if (mode === 'custom' && audio) {
+      if (resolved.kind === 'file' && audio) {
         audio.volume = clampUnitVolume(volume);
         if (audio.paused) {
           voidPlay(audio);
         }
         return;
       }
-      if (mode === 'builtin' && (timer || kicker)) {
+      if (resolved.kind === 'tone' && (timer || kicker)) {
         return;
       }
     }
@@ -346,8 +394,8 @@ export function createAlertLoop(): AlertLoopHandle {
     active = true;
     runningKey = key;
 
-    if (mode === 'custom') {
-      startCustom(url, volume, generationAtStart);
+    if (resolved.kind === 'file') {
+      startCustom(resolved.url, volume, generationAtStart);
       return;
     }
 

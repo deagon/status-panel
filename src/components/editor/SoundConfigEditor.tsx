@@ -5,7 +5,7 @@ import { css } from '@emotion/css';
 
 import { SoundConfig, SoundMode, StatusSoundConfig, StatusLevel } from '../../types';
 import { DEFAULT_SOUND_CONFIG, STATUS_SEVERITY_ORDER } from '../../constants';
-import { playStatusSound } from '../../utils/soundPlayer';
+import { BUNDLED_DISASTER_PREVIEW_MS, playStatusSound } from '../../utils/soundPlayer';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -71,8 +71,9 @@ export const SoundConfigEditor: React.FC<StandardEditorProps<CombinedValue>> = (
     const cfg = soundConfig[level as keyof SoundConfig];
     setPlaying(level);
     await playStatusSound(level as StatusLevel, volume, cfg);
-    // Longest built-in sound (disaster) is ~0.9 s — reset after 1.1 s
-    setTimeout(() => setPlaying(null), 1100);
+    // Web Audio tones are under a second. The bundled Disaster siren is several seconds.
+    const previewMs = level === 'disaster' && cfg.mode === 'builtin' ? BUNDLED_DISASTER_PREVIEW_MS : 1100;
+    setTimeout(() => setPlaying(null), previewMs);
   };
 
   // ── Styles ─────────────────────────────────────────────────────────────────
@@ -115,6 +116,12 @@ export const SoundConfigEditor: React.FC<StandardEditorProps<CombinedValue>> = (
     flex-wrap: wrap;
   `;
 
+  const hintCss = css`
+    font-size: 12px;
+    line-height: 1.4;
+    opacity: 0.8;
+  `;
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -152,7 +159,13 @@ export const SoundConfigEditor: React.FC<StandardEditorProps<CombinedValue>> = (
             <div className={controlRowCss}>
               {/* Mode selector */}
               <RadioButtonGroup
-                options={SOUND_MODE_OPTIONS}
+                options={
+                  level === 'disaster'
+                    ? SOUND_MODE_OPTIONS.map((option) =>
+                        option.value === 'builtin' ? { ...option, label: 'Built-in (firetruck)' } : option
+                      )
+                    : SOUND_MODE_OPTIONS
+                }
                 value={mode}
                 onChange={(v) => setStatusConfig(level, { mode: v as SoundMode })}
               />
@@ -172,6 +185,12 @@ export const SoundConfigEditor: React.FC<StandardEditorProps<CombinedValue>> = (
               )}
             </div>
 
+            {level === 'disaster' && mode === 'builtin' && (
+              <div className={hintCss}>
+                Built-in plays the firetruck siren shipped in the plugin (alert-disaster.mp3). It loops while Disaster is active. No file copy or URL is required.
+              </div>
+            )}
+
             {/* Custom URL field */}
             {mode === 'custom' && (
               <Input
@@ -179,6 +198,9 @@ export const SoundConfigEditor: React.FC<StandardEditorProps<CombinedValue>> = (
                 value={cfg.customUrl}
                 onChange={(e) => setStatusConfig(level, { customUrl: e.currentTarget.value })}
               />
+            )}
+            {level === 'disaster' && mode === 'custom' && (
+              <div className={hintCss}>Optional. Choose Built-in (firetruck) to use the siren included in the plugin.</div>
             )}
           </div>
         );

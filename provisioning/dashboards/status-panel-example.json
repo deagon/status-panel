@@ -94,7 +94,7 @@
             "warning": { "mode": "builtin", "customUrl": "" },
             "average": { "mode": "builtin", "customUrl": "" },
             "high": { "mode": "builtin", "customUrl": "" },
-            "disaster": { "mode": "custom", "customUrl": "https://storage.yandexcloud.net/alfaleasing/Grafana/Kaspersky_pig.mp3" }
+            "disaster": { "mode": "builtin", "customUrl": "" }
           }
         },
         "colorOK": "#2cda01",
@@ -207,7 +207,7 @@
             "warning": { "mode": "builtin", "customUrl": "" },
             "average": { "mode": "builtin", "customUrl": "" },
             "high": { "mode": "builtin", "customUrl": "" },
-            "disaster": { "mode": "custom", "customUrl": "https://storage.yandexcloud.net/alfaleasing/Grafana/Kaspersky_pig.mp3" }
+            "disaster": { "mode": "builtin", "customUrl": "" }
           }
         },
         "colorOK": "#2cda01",
@@ -358,7 +358,7 @@
             "warning": { "mode": "builtin", "customUrl": "" },
             "average": { "mode": "builtin", "customUrl": "" },
             "high": { "mode": "builtin", "customUrl": "" },
-            "disaster": { "mode": "custom", "customUrl": "https://storage.yandexcloud.net/alfaleasing/Grafana/Kaspersky_pig.mp3" }
+            "disaster": { "mode": "builtin", "customUrl": "" }
           }
         },
         "colorOK": "#2cda01",

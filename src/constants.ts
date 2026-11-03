@@ -131,14 +131,15 @@ export const SOUNDS: SoundDefinition[] = [
 ];
 
 // ─── Default Sound Config ─────────────────────────────────────────────────────
-// By default all statuses use the built-in tone.
+// Disaster "builtin" is the firetruck MP3 bundled in the plugin (see soundPlayer).
+// Other levels use the Web Audio tones above. Custom URL stays optional.
 
 export const DEFAULT_SOUND_CONFIG: SoundConfig = {
   information: { mode: 'builtin', customUrl: '' },
   warning:     { mode: 'builtin', customUrl: '' },
   average:     { mode: 'builtin', customUrl: '' },
   high:        { mode: 'builtin', customUrl: '' },
-  disaster:    { mode: 'custom', customUrl: 'https://storage.yandexcloud.net/alfaleasing/Grafana/Kaspersky_pig.mp3' },
+  disaster:    { mode: 'builtin', customUrl: '' },
 };
 
 // ─── Panel Defaults ───────────────────────────────────────────────────────────
