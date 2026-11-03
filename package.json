@@ -1,6 +1,6 @@
 {
   "name": "toropovav-status-panel",
-  "version": "1.0.1-snooze.4",
+  "version": "1.0.1-snooze.5",
   "description": "Status Panel for Grafana 10+",
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",
