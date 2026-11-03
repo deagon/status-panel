@@ -41,6 +41,9 @@ function playTone(
   masterGain.gain.value = volume / 100;
   masterGain.connect(ctx.destination);
 
+  let latestOsc: OscillatorNode | null = null;
+  let latestEnd = -1;
+
   for (const beep of beeps) {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -57,6 +60,24 @@ function playTone(
 
     osc.start(ctx.currentTime + beep.start);
     osc.stop(ctx.currentTime + beep.start + beep.duration + 0.05);
+
+    const endAt = beep.start + beep.duration;
+    if (endAt >= latestEnd) {
+      latestEnd = endAt;
+      latestOsc = osc;
+    }
+  }
+
+  // Release the gain node after the tone. The alarm loop calls this every
+  // couple of seconds, so leaving each node connected would accumulate for hours.
+  if (latestOsc) {
+    latestOsc.onended = () => {
+      try {
+        masterGain.disconnect();
+      } catch {
+        // Already disconnected.
+      }
+    };
   }
 }
 
@@ -110,14 +131,15 @@ export const SOUNDS: SoundDefinition[] = [
 ];
 
 // ─── Default Sound Config ─────────────────────────────────────────────────────
-// By default all statuses use the built-in tone.
+// Disaster "builtin" is the firetruck MP3 bundled in the plugin (see soundPlayer).
+// Other levels use the Web Audio tones above. Custom URL stays optional.
 
 export const DEFAULT_SOUND_CONFIG: SoundConfig = {
   information: { mode: 'builtin', customUrl: '' },
   warning:     { mode: 'builtin', customUrl: '' },
   average:     { mode: 'builtin', customUrl: '' },
   high:        { mode: 'builtin', customUrl: '' },
-  disaster:    { mode: 'custom', customUrl: 'https://storage.yandexcloud.net/alfaleasing/Grafana/Kaspersky_pig.mp3' },
+  disaster:    { mode: 'builtin', customUrl: '' },
 };
 
 // ─── Panel Defaults ───────────────────────────────────────────────────────────

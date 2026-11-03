@@ -233,8 +233,17 @@ export const plugin = new PanelPlugin<StatusPanelOptions>(StatusPanel).setPanelO
 
       .addBooleanSwitch({
         path: 'soundEnabled',
-        name: 'Enable alert sound on status change',
+        name: 'Enable alert sound',
+        description: 'Warning and higher severities loop until the status drops below Warning or an operator snoozes the alarm. Information plays once on change. This does not draw snooze buttons.',
         defaultValue: true,
+        category: ['Blink & Sound'],
+      })
+
+      .addBooleanSwitch({
+        path: 'showAlertSoundControls',
+        name: 'Show alert sound controls',
+        description: '全局声音控制面板. Show the 声音告警 buttons on this panel only. Leave off on metric tiles. Turn on for one dashboard panel to mute and resume alert sound for every Status Panel in this browser. The buttons stay available even when this panel is OK.',
+        defaultValue: false,
         category: ['Blink & Sound'],
       })
 

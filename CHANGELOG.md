@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- Looping alert sound while status is Warning or higher (Warning, Average, High, Disaster). The loop stops on OK, Information, Disabled, or N/A. Information still plays once on transition. Volume and per-status Off / Built-in / Custom URL settings are unchanged.
+- Opt-in **Show alert sound controls** (全局声音控制面板), off by default. One panel with it enabled shows 恢复报警声音 and the 1 minute / 30 minute / 1 hour / 2 hour / 4 hour snooze buttons. The unmute time is stored in `localStorage` and mutes or resumes every Status Panel in the browser, including after a reload. Metric panels do not render the button row.
+- Disaster **Built-in** plays the firetruck siren bundled in the plugin. The file is inlined in the JavaScript bundle, so it does not depend on a remote URL or on `/public/plugins/.../alert-disaster.mp3` being served. Custom URL remains optional.
+
+---
+
 ## [1.0.0] — 2025-02-24
 
 ### ✨ Added — Complete rewrite for Grafana 10+
@@ -13,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 This is a full rewrite of the abandoned `serrrios-statusoverview-panel` plugin with no shared code.
 
 #### Visual
+
 - Status levels: OK, Information, Warning, Average, High, Disaster, Disabled, N/A
 - Blink animation on status change with configurable duration (5–60 seconds)
 - Colorize each metric individually by its own status color
@@ -25,6 +36,7 @@ This is a full rewrite of the abandoned `serrrios-statusoverview-panel` plugin w
 - Separate font size controls for title and metrics
 
 #### Sound
+
 - 5 built-in alert tones via Web Audio API (one per severity level)
 - Custom audio URL (MP3/OGG) per status level
 - Per-status mode: Off / Built-in / Custom URL
@@ -32,6 +44,7 @@ This is a full rewrite of the abandoned `serrrios-statusoverview-panel` plugin w
 - Preview button for each sound in settings
 
 #### Rules
+
 - Regex metric matching with real-time validation and error highlighting
 - Number threshold, String threshold, and Show-only display modes
 - Reverse logic (trigger when value ≤ threshold)
@@ -43,14 +56,17 @@ This is a full rewrite of the abandoned `serrrios-statusoverview-panel` plugin w
 - Description tooltip on hover
 
 #### Reliability
+
 - Switch to N/A on data source error (prevents false-green status)
 - Custom error message when data source fails
 - No flicker during Grafana refresh cycles
 
 #### Developer
+
 - Full TypeScript rewrite with strict typing
 - Separated hooks: `useStatusTransition`, `useAlertSound`
 - Unit tests for `colorResolver`, `comparisonFunctions`, `displayBuilder`, `statusResolver`
 
 #### Migration
+
 - `migrate_panel.py` — Python script for automated migration of existing dashboards from the old plugin format

@@ -2,7 +2,13 @@
 // generally used by snapshots, but can affect specific tests
 process.env.TZ = 'UTC';
 
+const grafanaConfig = require('./.config/jest.config');
+
 module.exports = {
   // Jest configuration provided by Grafana scaffolding
-  ...require('./.config/jest.config'),
+  ...grafanaConfig,
+  moduleNameMapper: {
+    ...grafanaConfig.moduleNameMapper,
+    '\\.mp3$': '<rootDir>/src/test-utils/fileMock.js',
+  },
 };

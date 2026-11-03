@@ -12,6 +12,7 @@ import { DEFAULT_SOUND_CONFIG } from '../constants';
 import { useStatusTransition } from '../hooks/useStatusTransition';
 import { useAlertSound } from '../hooks/useAlertSound';
 import { MetricRow } from './MetricRow';
+import { AlertSoundControls } from './AlertSoundControls';
 
 type Props = PanelProps<StatusPanelOptions>;
 
@@ -132,12 +133,14 @@ export const StatusPanel: React.FC<Props> = ({
   );
 
   const soundSettings = (options as unknown as { soundSettings?: { volume?: number; soundConfig?: import('../types').SoundConfig } }).soundSettings; // eslint-disable-line @typescript-eslint/no-explicit-any
-  useAlertSound(
+  const alertSound = useAlertSound(
     status,
     options.soundEnabled,
     soundSettings?.volume ?? options.soundVolume ?? 70,
     soundSettings?.soundConfig ?? DEFAULT_SOUND_CONFIG
   );
+  // Opt-in. Undefined (dashboards saved before the option) stays hidden.
+  const showAlertSoundControls = options.showAlertSoundControls ?? false;
 
   // ── Colors ──────────────────────────────────────────────────────────────────
 
@@ -162,14 +165,25 @@ export const StatusPanel: React.FC<Props> = ({
 
   // ── Memoized styles ─────────────────────────────────────────────────────────
 
-  const panelCss = useMemo(() => css`
+  const shellCss = useMemo(() => css`
     width: ${width + 16}px;
     height: ${height + 16}px;
     margin: -8px 0 0 -8px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: ${radius}px;
+    background: ${theme.colors.background.primary};
+  `, [width, height, radius, theme.colors.background.primary]);
+
+  const panelCss = useMemo(() => css`
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
     padding: 8px;
     position: relative;
     overflow: hidden;
-    border-radius: ${radius}px;
     background-color: ${backgroundColor};
     color: ${textColor};
     display: flex;
@@ -179,7 +193,7 @@ export const StatusPanel: React.FC<Props> = ({
     text-align: center;
     box-sizing: border-box;
     animation: ${isBlinking && options.blink ? `${blinkAnimation} 1s linear infinite` : 'none'};
-  `, [width, height, radius, backgroundColor, textColor, isBlinking, options.blink]);
+  `, [backgroundColor, textColor, isBlinking, options.blink]);
 
   const headerCss = useMemo(() => css`
     display: flex;
@@ -293,6 +307,7 @@ export const StatusPanel: React.FC<Props> = ({
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
+    <div className={shellCss}>
     <div className={panelCss}>
 
       {/* Embleb */}
@@ -332,6 +347,15 @@ export const StatusPanel: React.FC<Props> = ({
         </div>
       )}
 
+    </div>
+    {showAlertSoundControls && (
+      <AlertSoundControls
+        snoozed={alertSound.snoozed}
+        unmuteAt={alertSound.unmuteAt}
+        onSnooze={alertSound.snoozeFor}
+        onResume={alertSound.resume}
+      />
+    )}
     </div>
   );
 };
